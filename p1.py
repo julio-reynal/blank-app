@@ -13,6 +13,7 @@ class HandTrackingProcessor(VideoProcessorBase):
 
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
+        
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = self.hands.process(img_rgb)
 
@@ -20,16 +21,7 @@ class HandTrackingProcessor(VideoProcessorBase):
             for hand_landmarks in results.multi_hand_landmarks:
                 mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-                # Obtener las coordenadas del primer landmark (por ejemplo, la muñeca)
-                landmark = hand_landmarks.landmark[0]
-                h, w, _ = img.shape
-                cx, cy = int(landmark.x * w), int(landmark.y * h)
-
-                # Dibujar el texto "Se detectó la mano" en la imagen
-                cv2.putText(img, 'Se detectó la mano', (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-
         return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 st.title("Detección de Manos en Tiempo Real con Streamlit y MediaPipe")
 webrtc_streamer(key="hand-tracking", video_processor_factory=HandTrackingProcessor)
-
